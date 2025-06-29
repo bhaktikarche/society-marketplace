@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, User, Calendar, DollarSign, ShoppingBag } from 'lucide-react';
+import {
+  Heart,
+  User,
+  Calendar,
+  DollarSign,
+  ShoppingBag,
+} from 'lucide-react';
 import { Product } from '../utils/types';
 import { useAuth } from '../contexts/AuthContext';
 import LocalStorageService from '../utils/localStorage';
@@ -10,11 +16,10 @@ interface ProductCardProps {
   showSellerInfo?: boolean;
 }
 
-// Beautiful product card component with hover effects and like functionality
-const ProductCard: React.FC<ProductCardProps> = ({ 
-  product, 
-  onLikeToggle, 
-  showSellerInfo = true 
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onLikeToggle,
+  showSellerInfo = true,
 }) => {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(() => {
@@ -24,34 +29,37 @@ const ProductCard: React.FC<ProductCardProps> = ({
   });
   const [imageError, setImageError] = useState(false);
 
-  const handleLikeToggle = (e: React.MouseEvent) => {
+  const handleLikeToggle = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!user) return;
-    
+
     const likedProducts = LocalStorageService.getLikedProducts(user.id);
-    const newLikedProducts = isLiked 
-      ? likedProducts.filter(id => id !== product.id)
+    const updatedLikes = isLiked
+      ? likedProducts.filter((id) => id !== product.id)
       : [...likedProducts, product.id];
-    
-    LocalStorageService.saveLikedProducts(user.id, newLikedProducts);
+
+    LocalStorageService.saveLikedProducts(user.id, updatedLikes);
     setIsLiked(!isLiked);
     onLikeToggle?.();
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR',
     }).format(price);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-IN', {
       day: 'numeric',
-      year: 'numeric'
+      month: 'short',
+      year: 'numeric',
     });
   };
 
@@ -76,19 +84,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
         )}
-        
+
         {/* Like Button */}
         {user && (
           <button
             onClick={handleLikeToggle}
+            aria-label={isLiked ? 'Unlike product' : 'Like product'}
             className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
-              isLiked 
-                ? 'bg-red-500 text-white shadow-lg scale-110' 
+              isLiked
+                ? 'bg-red-500 text-white shadow-lg scale-110'
                 : 'bg-white/80 text-gray-600 hover:bg-white hover:scale-110'
             }`}
           >
-            <Heart 
-              className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} 
+            <Heart
+              className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`}
             />
           </button>
         )}
@@ -118,14 +127,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span>{formatPrice(product.price)}</span>
         </div>
 
-        {/* Seller Info and Date */}
+        {/* Seller Info & Date */}
         {showSellerInfo && (
           <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t border-gray-100">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center gap-1">
               <User className="h-4 w-4" />
               <span>{product.sellerName}</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>{formatDate(product.createdAt)}</span>
             </div>

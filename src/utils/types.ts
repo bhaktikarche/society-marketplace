@@ -1,4 +1,5 @@
 // Type definitions for the Society Marketplace application
+
 export interface User {
   id: string;
   email: string;
@@ -38,4 +39,4 @@ export const CATEGORIES = [
   'Other'
 ] as const;
 
-export type Category = typeof CATEGORIES[number];
+export type Category = (typeof CATEGORIES)[number];

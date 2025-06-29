@@ -1,15 +1,24 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode
+} from 'react';
 import { User, AuthContextType } from '../utils/types';
 import LocalStorageService from '../utils/localStorage';
 
-// Create authentication context for managing user state across the application
+// Create the context with strict typing
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+// Custom hook to access the auth context
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 };
 
@@ -21,40 +30,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from localStorage on app initialization
+  // Load current user on component mount
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const savedUser = LocalStorageService.getCurrentUser();
-        if (savedUser) {
-          setUser(savedUser);
-        }
-      } catch (error) {
-        console.error('Failed to load user from localStorage:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    try {
+      const savedUser = LocalStorageService.getCurrentUser();
 
-    loadUser();
+      if (savedUser) {
+        setUser(savedUser);
+      }
+    } catch (error) {
+      console.error('Failed to load user from localStorage:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Mock login function - in production, this would call an API
+  /**
+   * Logs in a user based on email.
+   */
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+
       const users = LocalStorageService.getUsers();
       const existingUser = users.find(u => u.email === email);
-      
+
       if (existingUser) {
         setUser(existingUser);
         LocalStorageService.saveUser(existingUser);
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Login failed:', error);
@@ -64,32 +72,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Mock signup function - in production, this would call an API
-  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
+  /**
+   * Registers a new user if the email is not already in use.
+   */
+  const signup = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<boolean> => {
     setIsLoading(true);
+
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+
       const users = LocalStorageService.getUsers();
-      const existingUser = users.find(u => u.email === email);
-      
-      if (existingUser) {
-        return false; // User already exists
+      const emailExists = users.some(u => u.email === email);
+
+      if (emailExists) {
+        return false; // Duplicate email
       }
-      
+
       const newUser: User = {
         id: Date.now().toString(),
         email,
         name,
         createdAt: new Date().toISOString()
       };
-      
+
       users.push(newUser);
       LocalStorageService.saveUsers(users);
-      setUser(newUser);
       LocalStorageService.saveUser(newUser);
-      
+      setUser(newUser);
+
       return true;
     } catch (error) {
       console.error('Signup failed:', error);
@@ -99,8 +113,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Logout function
-  const logout = () => {
+  /**
+   * Logs out the current user and clears local storage.
+   */
+  const logout = (): void => {
     setUser(null);
     LocalStorageService.removeCurrentUser();
   };

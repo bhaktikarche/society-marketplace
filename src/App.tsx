@@ -12,7 +12,7 @@ import { initializeSampleData } from './utils/sampleData';
 // Initialize sample data when the app loads
 initializeSampleData();
 
-// Protected route component
+// ProtectedRoute component to guard private routes
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
 
@@ -31,19 +31,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return children;
 };
 
-// Main App component with routing
+// Main App component with route definitions
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
+          {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
-          
-          {/* Protected Routes with Layout */}
+
+          {/* Home Page (wrapped in layout) */}
           <Route
             path="/"
             element={
@@ -52,6 +52,8 @@ const App: React.FC = () => {
               </Layout>
             }
           />
+
+          {/* Protected Routes */}
           <Route
             path="/liked"
             element={
@@ -82,9 +84,9 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/\" replace />} />
+
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

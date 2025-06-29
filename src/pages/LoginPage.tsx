@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-// Modern login/signup page with form validation and smooth transitions
 const LoginPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,10 +18,8 @@ const LoginPage: React.FC = () => {
   const { login, signup, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
   const from = location.state?.from?.pathname || '/';
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       navigate(from, { replace: true });
@@ -32,21 +29,18 @@ const LoginPage: React.FC = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-    // Signup-specific validation
     if (!isLogin) {
       if (!formData.name) {
         newErrors.name = 'Name is required';
@@ -67,7 +61,6 @@ const LoginPage: React.FC = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -75,14 +68,13 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    
+
     try {
       let success = false;
-      
+
       if (isLogin) {
         success = await login(formData.email, formData.password);
         if (!success) {
@@ -135,10 +127,9 @@ const LoginPage: React.FC = () => {
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name field for signup */}
             {!isLogin && (
               <div>
-                <label htmlFor="name\" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
                 </label>
                 <div className="relative">
@@ -147,7 +138,7 @@ const LoginPage: React.FC = () => {
                     id="name"
                     type="text"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={e => handleInputChange('name', e.target.value)}
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
                       errors.name ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
                     }`}
@@ -158,7 +149,6 @@ const LoginPage: React.FC = () => {
               </div>
             )}
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -169,7 +159,7 @@ const LoginPage: React.FC = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={e => handleInputChange('email', e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
                     errors.email ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
                   }`}
@@ -179,7 +169,6 @@ const LoginPage: React.FC = () => {
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -190,7 +179,7 @@ const LoginPage: React.FC = () => {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onChange={e => handleInputChange('password', e.target.value)}
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
                     errors.password ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
                   }`}
@@ -207,7 +196,6 @@ const LoginPage: React.FC = () => {
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-            {/* Confirm Password for signup */}
             {!isLogin && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
@@ -219,18 +207,19 @@ const LoginPage: React.FC = () => {
                     id="confirmPassword"
                     type="password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    onChange={e => handleInputChange('confirmPassword', e.target.value)}
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
                       errors.confirmPassword ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
                     }`}
                     placeholder="Confirm your password"
                   />
                 </div>
-                {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                )}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting || isLoading}
@@ -240,7 +229,6 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Toggle Form */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               {isLogin ? "Don't have an account?" : 'Already have an account?'}

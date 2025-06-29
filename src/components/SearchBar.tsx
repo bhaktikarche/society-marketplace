@@ -7,20 +7,28 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-// Modern search bar component with clear functionality
-const SearchBar: React.FC<SearchBarProps> = ({ 
-  value, 
-  onChange, 
-  placeholder = "Search products..." 
+/**
+ * A modern search bar component with optional clear functionality.
+ */
+const SearchBar: React.FC<SearchBarProps> = ({
+  value,
+  onChange,
+  placeholder = 'Search products...'
 }) => {
-  const handleClear = () => {
+  /**
+   * Clears the search input.
+   */
+  const handleClear = (): void => {
     onChange('');
   };
 
   return (
     <div className="relative max-w-md w-full">
       <div className="relative">
+        {/* Search icon inside input */}
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+
+        {/* Search input field */}
         <input
           type="text"
           value={value}
@@ -28,6 +36,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white shadow-sm"
         />
+
+        {/* Clear button appears only when there is input */}
         {value && (
           <button
             onClick={handleClear}

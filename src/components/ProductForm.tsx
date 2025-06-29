@@ -5,26 +5,29 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProductFormProps {
   product?: Product;
-  onSave: (productData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (
+    data: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt' | 'updatedAt'>
+  ) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
-// Comprehensive product form with validation and preview
-const ProductForm: React.FC<ProductFormProps> = ({ 
-  product, 
-  onSave, 
-  onCancel, 
-  isLoading = false 
+const ProductForm: React.FC<ProductFormProps> = ({
+  product,
+  onSave,
+  onCancel,
+  isLoading = false,
 }) => {
   const { user } = useAuth();
+
   const [formData, setFormData] = useState({
-    title: product?.title || '',
-    description: product?.description || '',
-    price: product?.price?.toString() || '',
-    category: product?.category || '',
-    imageUrl: product?.imageUrl || ''
+    title: product?.title ?? '',
+    description: product?.description ?? '',
+    price: product?.price?.toString() ?? '',
+    category: product?.category ?? '',
+    imageUrl: product?.imageUrl ?? '',
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -34,7 +37,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [formData.imageUrl]);
 
-  const validateForm = () => {
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
@@ -69,40 +81,29 @@ const ProductForm: React.FC<ProductFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValidUrl = (string: string) => {
-    try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
+
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     onSave({
       title: formData.title.trim(),
       description: formData.description.trim(),
       price: Number(formData.price),
       category: formData.category,
-      imageUrl: formData.imageUrl.trim()
+      imageUrl: formData.imageUrl.trim(),
     });
   };
 
-  const handleImageError = () => {
+  const handleImageError = (): void => {
     setImagePreview(null);
   };
 
@@ -113,152 +114,126 @@ const ProductForm: React.FC<ProductFormProps> = ({
           {product ? 'Edit Product' : 'Add New Product'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
-          Fill in the details below to {product ? 'update' : 'list'} your product
+          Fill in the details below to {product ? 'update' : 'list'} your product.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-            Product Title *
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            Product Title
           </label>
           <input
             id="title"
             type="text"
+            className="mt-1 block w-full border rounded-md p-2 text-sm"
             value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
-              errors.title ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
-            }`}
-            placeholder="Enter product title"
+            onChange={e => handleInputChange('title', e.target.value)}
           />
-          {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+          {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-            Description *
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            Description
           </label>
           <textarea
             id="description"
-            value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
             rows={4}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 resize-none ${
-              errors.description ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
-            }`}
-            placeholder="Describe your product in detail"
+            className="mt-1 block w-full border rounded-md p-2 text-sm"
+            value={formData.description}
+            onChange={e => handleInputChange('description', e.target.value)}
           />
-          {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+          {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
         </div>
 
-        {/* Price and Category Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-              Price ($) *
-            </label>
-            <input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.price}
-              onChange={(e) => handleInputChange('price', e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
-                errors.price ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
-              }`}
-              placeholder="0.00"
-            />
-            {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price}</p>}
-          </div>
+        {/* Price */}
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+            Price (₹)
+          </label>
+          <input
+            id="price"
+            type="number"
+            className="mt-1 block w-full border rounded-md p-2 text-sm"
+            value={formData.price}
+            onChange={e => handleInputChange('price', e.target.value)}
+          />
+          {errors.price && <p className="text-sm text-red-600 mt-1">{errors.price}</p>}
+        </div>
 
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
-            </label>
-            <select
-              id="category"
-              value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
-                errors.category ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
-              }`}
-            >
-              <option value="">Select a category</option>
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
-          </div>
+        {/* Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            id="category"
+            className="mt-1 block w-full border rounded-md p-2 text-sm"
+            value={formData.category}
+            onChange={e => handleInputChange('category', e.target.value)}
+          >
+            <option value="">Select Category</option>
+            {CATEGORIES.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          {errors.category && <p className="text-sm text-red-600 mt-1">{errors.category}</p>}
         </div>
 
         {/* Image URL */}
         <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-            Image URL *
+          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+            Image URL
           </label>
           <input
             id="imageUrl"
-            type="url"
+            type="text"
+            className="mt-1 block w-full border rounded-md p-2 text-sm"
             value={formData.imageUrl}
-            onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 ${
-              errors.imageUrl ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'
-            }`}
-            placeholder="https://example.com/image.jpg"
+            onChange={e => handleInputChange('imageUrl', e.target.value)}
           />
-          {errors.imageUrl && <p className="mt-1 text-sm text-red-600">{errors.imageUrl}</p>}
+          {errors.imageUrl && <p className="text-sm text-red-600 mt-1">{errors.imageUrl}</p>}
         </div>
 
         {/* Image Preview */}
-        {formData.imageUrl && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image Preview
-            </label>
-            <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-              {imagePreview ? (
-                <img
-                  src={formData.imageUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                  onError={handleImageError}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <div className="text-center">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-2" />
-                    <p className="text-sm">Unable to load image</p>
-                  </div>
-                </div>
-              )}
+        <div className="flex items-center justify-center border border-dashed border-gray-300 rounded-md h-48">
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="max-h-full object-contain"
+              onError={handleImageError}
+            />
+          ) : (
+            <div className="text-gray-400 flex flex-col items-center gap-2">
+              <ImageIcon className="w-8 h-8" />
+              <p className="text-sm">Image preview will appear here</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex items-center justify-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="h-4 w-4" />
-            <span>{isLoading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}</span>
-          </button>
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
             onClick={onCancel}
-            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
+            className="inline-flex items-center gap-1 border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
-            <X className="h-4 w-4" />
-            <span>Cancel</span>
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex items-center gap-1 bg-indigo-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-indigo-700 transition"
+          >
+            <Save className="w-4 h-4" />
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>

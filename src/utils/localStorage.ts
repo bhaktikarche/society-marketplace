@@ -1,104 +1,110 @@
 import { User, Product } from './types';
 
-// Local Storage utility functions with error handling
+// Utility class to interact with localStorage
 class LocalStorageService {
-  // User management
+  // Save current user
   static saveUser(user: User): void {
     try {
       localStorage.setItem('currentUser', JSON.stringify(user));
     } catch (error) {
-      console.error('Failed to save user to localStorage:', error);
+      console.error('Failed to save user:', error);
     }
   }
 
+  // Get currently logged-in user
   static getCurrentUser(): User | null {
     try {
-      const user = localStorage.getItem('currentUser');
-      return user ? JSON.parse(user) : null;
+      const data = localStorage.getItem('currentUser');
+      return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('Failed to get current user from localStorage:', error);
+      console.error('Failed to get current user:', error);
       return null;
     }
   }
 
+  // Remove current user
   static removeCurrentUser(): void {
     try {
       localStorage.removeItem('currentUser');
     } catch (error) {
-      console.error('Failed to remove current user from localStorage:', error);
+      console.error('Failed to remove user:', error);
     }
   }
 
-  // Users database
+  // Save all users
   static saveUsers(users: User[]): void {
     try {
       localStorage.setItem('users', JSON.stringify(users));
     } catch (error) {
-      console.error('Failed to save users to localStorage:', error);
+      console.error('Failed to save users:', error);
     }
   }
 
+  // Get all users
   static getUsers(): User[] {
     try {
-      const users = localStorage.getItem('users');
-      return users ? JSON.parse(users) : [];
+      const data = localStorage.getItem('users');
+      return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('Failed to get users from localStorage:', error);
+      console.error('Failed to load users:', error);
       return [];
     }
   }
 
-  // Products management
+  // Save all products
   static saveProducts(products: Product[]): void {
     try {
       localStorage.setItem('products', JSON.stringify(products));
     } catch (error) {
-      console.error('Failed to save products to localStorage:', error);
+      console.error('Failed to save products:', error);
     }
   }
 
+  // Get all products
   static getProducts(): Product[] {
     try {
-      const products = localStorage.getItem('products');
-      return products ? JSON.parse(products) : [];
+      const data = localStorage.getItem('products');
+      return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('Failed to get products from localStorage:', error);
+      console.error('Failed to load products:', error);
       return [];
     }
   }
 
-  // Liked products management
+  // Save liked products for a user
   static saveLikedProducts(userId: string, productIds: string[]): void {
     try {
-      const likedProducts = this.getAllLikedProducts();
-      likedProducts[userId] = productIds;
-      localStorage.setItem('likedProducts', JSON.stringify(likedProducts));
+      const liked = this.getAllLikedProducts();
+      liked[userId] = productIds;
+      localStorage.setItem('likedProducts', JSON.stringify(liked));
     } catch (error) {
-      console.error('Failed to save liked products to localStorage:', error);
+      console.error('Failed to save liked products:', error);
     }
   }
 
+  // Get liked products for a user
   static getLikedProducts(userId: string): string[] {
     try {
-      const likedProducts = this.getAllLikedProducts();
-      return likedProducts[userId] || [];
+      const liked = this.getAllLikedProducts();
+      return liked[userId] || [];
     } catch (error) {
-      console.error('Failed to get liked products from localStorage:', error);
+      console.error('Failed to get liked products:', error);
       return [];
     }
   }
 
+  // Get all liked products
   private static getAllLikedProducts(): Record<string, string[]> {
     try {
-      const likedProducts = localStorage.getItem('likedProducts');
-      return likedProducts ? JSON.parse(likedProducts) : {};
+      const data = localStorage.getItem('likedProducts');
+      return data ? JSON.parse(data) : {};
     } catch (error) {
-      console.error('Failed to get all liked products from localStorage:', error);
+      console.error('Failed to load liked products:', error);
       return {};
     }
   }
 
-  // Clear all data (useful for development/testing)
+  // Clear all localStorage (use with caution)
   static clearAll(): void {
     try {
       localStorage.clear();

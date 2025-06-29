@@ -5,21 +5,24 @@ import ProductForm from '../components/ProductForm';
 import { Product } from '../utils/types';
 import LocalStorageService from '../utils/localStorage';
 
-// Page for adding new products with form handling
+// Page to create and save a new product listing
 const AddProductPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleSave = async (productData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt' | 'updatedAt'>) => {
+  // Save new product to localStorage
+  const handleSave = async (
+    productData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt' | 'updatedAt'>
+  ) => {
     if (!user) return;
 
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       const newProduct: Product = {
         ...productData,
         id: Date.now().toString(),
@@ -35,13 +38,13 @@ const AddProductPage: React.FC = () => {
 
       navigate('/my-listings');
     } catch (error) {
-      console.error('Failed to save product:', error);
-      // In a real app, show error notification
+      console.error('Error saving product:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Cancel and go back to home
   const handleCancel = () => {
     navigate('/');
   };
