@@ -17,7 +17,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   onCancel, 
   isLoading = false 
 }) => {
-  const { user } = useAuth();
+  const {  } = useAuth();
   const [formData, setFormData] = useState({
     title: product?.title || '',
     description: product?.description || '',

@@ -6,14 +6,15 @@ import CategoryFilter from '../components/CategoryFilter';
 import { Product } from '../utils/types';
 import LocalStorageService from '../utils/localStorage';
 
-// Homepage with product listing, search, and filtering capabilities
 const HomePage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load products from localStorage
+  /**
+   * Load products from localStorage on component mount
+   */
   useEffect(() => {
     const loadProducts = () => {
       try {
@@ -29,18 +30,27 @@ const HomePage: React.FC = () => {
     loadProducts();
   }, []);
 
-  // Filter products based on search term and category
+  /**
+   * Filter products based on search term and selected category
+   */
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === '' || product.category === selectedCategory;
+      const matchesSearch = 
+        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = 
+        selectedCategory === '' || 
+        product.category === selectedCategory;
+      
       return matchesSearch && matchesCategory;
     });
   }, [products, searchTerm, selectedCategory]);
 
+  /**
+   * Handles like toggle to trigger re-render
+   */
   const handleLikeToggle = () => {
-    // Trigger a re-render to update like states
     setProducts(prev => [...prev]);
   };
 
@@ -78,9 +88,9 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
+        {/* Filters Section */}
         <div className="mb-8">
           <CategoryFilter
             selectedCategory={selectedCategory}
@@ -117,7 +127,9 @@ const HomePage: React.FC = () => {
               {products.length === 0 ? (
                 <>
                   <Package className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Products Yet
+                  </h3>
                   <p className="text-gray-500 mb-6">
                     Be the first to list a product in the marketplace!
                   </p>
@@ -125,7 +137,9 @@ const HomePage: React.FC = () => {
               ) : (
                 <>
                   <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Found</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Products Found
+                  </h3>
                   <p className="text-gray-500 mb-6">
                     Try adjusting your search or filter criteria to find what you're looking for.
                   </p>

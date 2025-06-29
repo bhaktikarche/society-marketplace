@@ -10,7 +10,7 @@ interface ProductCardProps {
   showSellerInfo?: boolean;
 }
 
-// Beautiful product card component with hover effects and like functionality
+
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   onLikeToggle, 
@@ -22,8 +22,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const likedProducts = LocalStorageService.getLikedProducts(user.id);
     return likedProducts.includes(product.id);
   });
+  
   const [imageError, setImageError] = useState(false);
 
+  
   const handleLikeToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -40,14 +42,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
     onLikeToggle?.();
   };
 
-  const formatPrice = (price: number) => {
+ 
+  const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(price);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -57,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-100">
-      {/* Product Image */}
+      {/* Product Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         {!imageError ? (
           <img
@@ -86,6 +89,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 ? 'bg-red-500 text-white shadow-lg scale-110' 
                 : 'bg-white/80 text-gray-600 hover:bg-white hover:scale-110'
             }`}
+            aria-label={isLiked ? 'Unlike product' : 'Like product'}
           >
             <Heart 
               className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} 
@@ -101,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* Product Info */}
+      {/* Product Information Section */}
       <div className="p-4 space-y-3">
         <div className="space-y-2">
           <h3 className="font-semibold text-lg text-gray-900 group-hover:text-indigo-700 transition-colors duration-200 line-clamp-2">
@@ -112,13 +116,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </p>
         </div>
 
-        {/* Price */}
+        {/* Price Display */}
         <div className="flex items-center space-x-1 text-2xl font-bold text-indigo-600">
           <DollarSign className="h-5 w-5" />
           <span>{formatPrice(product.price)}</span>
         </div>
 
-        {/* Seller Info and Date */}
+        {/* Seller Information (Conditional) */}
         {showSellerInfo && (
           <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t border-gray-100">
             <div className="flex items-center space-x-1">
