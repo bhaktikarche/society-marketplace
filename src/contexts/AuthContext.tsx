@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Mock login function - in production, this would call an API
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, ): Promise<boolean> => {
     setIsLoading(true);
     try {
       // Simulate API call delay
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Mock signup function - in production, this would call an API
-  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
+  const signup = async (email: string,  name: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       // Simulate API call delay
